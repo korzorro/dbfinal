@@ -1,0 +1,240 @@
+.open suggestion_box.db
+
+--drop tables if exist
+DROP TABLE IF EXISTS suggestion;
+DROP TABLE IF EXISTS response;
+DROP TABLE IF EXISTS comment;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS user_role;
+DROP TABLE IF EXISTS role;
+DROP TABLE IF EXISTS role_permission;
+DROP TABLE IF EXISTS permission;
+
+--create new tables
+CREATE TABLE suggestion(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  text TEXT NOT NULL,
+  author VARCHAR(128),
+  email VARCHAR(128),
+  phone VARCHAR(20),
+  timestamp TEXT NOT NULL,
+  is_public INTEGER DEFAULT 0,
+  should_contact INTEGER DEFAULT 0,
+  contacted INTEGER DEFAULT 0
+);
+
+CREATE TABLE role(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  name VARCHAR(128) NOT NULL
+);
+
+CREATE TABLE permission(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  name VARCHAR(128) NOT NULL,
+  endpoint VARCHAR(2048) NOT NULL
+);
+
+CREATE TABLE user(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  username VARCHAR(128) NOT NULL,
+  full_name VARCHAR(128) NOT NULL,
+  email VARCHAR(128) NOT NULL,
+  password VARCHAR(128) NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE response(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  user_id INTEGER NOT NULL,
+  suggestion_id INTEGER NOT NULL,
+  text TEXT NOT NULL,
+  timestamp TEXT NOT NULL,
+  CONSTRAINT user_id_fk
+    FOREIGN KEY(user_id)
+    REFERENCES user(id),
+  CONSTRAINT suggestion_id_fk
+    FOREIGN KEY(suggestion_id)
+    REFERENCES suggestion(id)
+);
+
+CREATE TABLE comment(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  user_id INTEGER NOT NULL,
+  response_id INTEGER NOT NULL,
+  text TEXT NOT NULL,
+  timestamp TEXT NOT NULL,
+  CONSTRAINT user_id_fk
+    FOREIGN KEY(user_id)
+    REFERENCES user(id),
+  CONSTRAINT response_id_fk
+    FOREIGN KEY(response_id)
+    REFERENCES response(id)
+);
+
+CREATE TABLE user_role(
+  user_id INTEGER NOT NULL,
+  role_id INTEGER NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  CONSTRAINT user_id_fk
+    FOREIGN KEY(user_id)
+    REFERENCES user(id),
+  CONSTRAINT role_id_fk
+    FOREIGN KEY(role_id)
+    REFERENCES role(id)
+);
+
+CREATE TABLE role_permission(
+  role_id INTEGER NOT NULL,
+  permission_id INTEGER NOT NULL,
+  PRIMARY KEY (role_id, permission_id),
+  CONSTRAINT permission_id_fk
+    FOREIGN KEY(permission_id)
+    REFERENCES permission(id),
+  CONSTRAINT role_id_fk
+    FOREIGN KEY(role_id)
+    REFERENCES role(id)
+);
+
+CREATE INDEX username_index ON user(username);
+
+-- populate db
+-- suggestion
+INSERT INTO suggestion(id, text, timestamp, author, email, phone, is_public,
+	should_contact, contacted)
+    VALUES (NULL, 'There needs to be more toilet paper stocked in the bathrooms.',
+	'2016-12-12 08:20:00.000', 'George', 'george@example.com', '555-123-4444',
+	NULL, 1, NULL);
+INSERT INTO suggestion(id, text, timestamp, author, email, phone, is_public,
+	should_contact, contacted)
+    VALUES (NULL, 'I cannot connect to the WiFi. Make a public or guest WiFi.',
+	'2016-8-11 15:20:00.000', 'Matt', 'george@example.com', '(555) 823-7541',
+	NULL, 0, NULL);
+INSERT INTO suggestion(id, text, timestamp, author, email, phone, is_public,
+	should_contact, contacted)
+    VALUES (NULL, 'I DO NOT LIKE THIS COMPANY!!!!!!!! SPAM SPAM SPAM!!!!',
+	'2016-1-25 11:24:00.000', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO suggestion(id, text, timestamp, author, email, phone, is_public,
+	should_contact, contacted)
+    VALUES (NULL, 'Please stock more toilet paper in the bathrooms.',
+	'2016-12-11 18:52:00.000', 'Sarah', 'sarah123@example.com', NULL, NULL, 1, NULL);
+INSERT INTO suggestion(id, text, timestamp, author, email, phone, is_public,
+	should_contact, contacted)
+    VALUES (NULL, 'The music sounds a bit stale. Try something hip like Hundred Waters.',
+	'2016-10-1 12:29:00.000', 'Sam', NULL, NULL, NULL, NULL, NULL);
+
+--permission
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Add User', '/user/new');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete User', '/user/delete');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Edit User', '/user/edit');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Set Suggestion as Public/Private',
+	'/suggestion/public');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete Suggestion', '/suggestion/delete');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Respond', '/response/new');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Comment', '/comment/new');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete Any Comment',
+	'/comment/delete');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete Any Response',
+	'/response/delete');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Add Role', '/role/new');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Edit Role', '/role/edit');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete Role', '/role/delete');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Add Permission', '/permission/new');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Edit Permission', '/permission/edit');
+INSERT INTO permission(id, name, endpoint) VALUES (NULL, 'Delete Permission', '/permission/delete');
+
+--role
+INSERT INTO role(id, name) VALUES (NULL, 'Admin');
+INSERT INTO role(id, name) VALUES (NULL, 'Commenter');
+INSERT INTO role(id, name) VALUES (NULL, 'Responder');
+INSERT INTO role(id, name) VALUES (NULL, 'Moderator');
+INSERT INTO role(id, name) VALUES (NULL, 'God');
+
+--permission_role
+--Admin
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 1);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 2);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 3);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 10);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 11);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 12);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 13);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 14);
+INSERT INTO role_permission(role_id, permission_id) VALUES (1, 15);
+--Commenter
+INSERT INTO role_permission(role_id, permission_id) VALUES (2, 7);
+--Responder
+INSERT INTO role_permission(role_id, permission_id) VALUES (3, 6);
+--Moderator
+INSERT INTO role_permission(role_id, permission_id) VALUES (4, 4);
+INSERT INTO role_permission(role_id, permission_id) VALUES (4, 5);
+INSERT INTO role_permission(role_id, permission_id) VALUES (4, 8);
+INSERT INTO role_permission(role_id, permission_id) VALUES (4, 9);
+--God
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 1);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 2);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 3);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 4);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 5);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 6);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 7);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 8);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 9);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 10);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 11);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 12);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 13);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 14);
+INSERT INTO role_permission(role_id, permission_id) VALUES (5, 15);
+
+--user
+INSERT INTO user(id, username, full_name, email, password, is_active) VALUES
+    (NULL, 'georgcosta', 'George Costanza', 'gcost@company.com', '123456', 1);
+INSERT INTO user(id, username, full_name, email, password, is_active) VALUES
+    (NULL, 'jerryseinf', 'Jerry Seinfeld', 'jsein@company.com', 'airplane-F00d', 1);
+INSERT INTO user(id, username, full_name, email, password, is_active) VALUES
+    (NULL, 'cosmokrame', 'Kramer', 'ckram@company.com', '!!!!!?secret!', 0);
+INSERT INTO user(id, username, full_name, email, password, is_active) VALUES
+    (NULL, 'elainbenes', 'Elaine Benes', 'ebene@company.com', '3L41N3==83N35', 1);
+INSERT INTO user(id, username, full_name, email, password, is_active) VALUES
+    (NULL, 'johnnewma', 'John Newman', 'jnewm@company.com', 'newman', 1);
+
+--user_role
+INSERT INTO user_role(user_id, role_id) VALUES (1, 2);
+INSERT INTO user_role(user_id, role_id) VALUES (1, 3);
+INSERT INTO user_role(user_id, role_id) VALUES (2, 2);
+INSERT INTO user_role(user_id, role_id) VALUES (2, 3);
+INSERT INTO user_role(user_id, role_id) VALUES (3, 5);
+INSERT INTO user_role(user_id, role_id) VALUES (4, 4);
+INSERT INTO user_role(user_id, role_id) VALUES (5, 1);
+
+--response
+INSERT INTO response(id, user_id, suggestion_id, text, timestamp) VALUES
+    (NULL, 2, 4, 'Thanks for bringing this to our attention. We will stock more toilet paper.',
+	'2016-12-14 7:11:00.000');
+INSERT INTO response(id, user_id, suggestion_id, text, timestamp) VALUES
+    (NULL, 1, 5, 'We appreciate new music suggestions and have decided to add this to our playlist.',
+	'2016-12-12 9:43:00.000');
+INSERT INTO response(id, user_id, suggestion_id, text, timestamp) VALUES
+    (NULL, 2, 2, 'We are currently having issues with our WiFi, but this will soon be resolved.',
+	'2016-8-11 16:22:00.000');
+INSERT INTO response(id, user_id, suggestion_id, text, timestamp) VALUES
+    (NULL, 1, 1, 'Thanks for bringing this to our attention. We will stock more toilet paper.',
+	'2016-12-11 18:53:00.000');
+INSERT INTO response(id, user_id, suggestion_id, text, timestamp) VALUES
+    (NULL, 2, 5, 'If you want to make more music suggestions, visit our page at www.ourcompany.com/music-suggestions.',
+	'2016-10-5 20:16:00.000');
+
+--comment
+INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
+    (NULL, 1, 1, 'We have just now fully stocked our toilet paper supply.', '2016-12-14 8:12:00.000');
+INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
+    (NULL, 2, 1, 'Nice! You got the 2-ply!', '2016-12-14 9:33:00.000');
+INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
+    (NULL, 1, 5, 'And if you make a music suggestion, you get automatically entered in a raffle.',
+	'2016-10-6 11:04:00.000');
+INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
+    (NULL, 2, 3, 'The issue has been resolved. Login to company_open to access our public WiFi.',
+	'2016-8-21 14:20:00.000');
+INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
+    (NULL, 2, 3, 'Our WiFi usage policies are on our website.', '2016-8-21 14:23:00.000');
+

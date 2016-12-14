@@ -1,0 +1,7 @@
+import sqlite3
+
+if __name__ == '__main__':
+    conn = sqlite3.connect('suggestion_box.db')
+    conn.execute('.read create_db.sqlite')
+    conn.commit()
+    conn.close()

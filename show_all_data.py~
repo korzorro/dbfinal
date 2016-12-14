@@ -1,0 +1,17 @@
+import sqlite3
+
+database = 'suggestion_box.db'
+input_prompt = 'What table would you like to view all of the records of (enter a number)?'
+tables = ('suggestion', 'response', 'comment', 'user', 'user_role', 'role',
+          'role_permission', 'permission')
+
+def show_options():
+    for num_table in enumerate(tables):
+        print('%i. %s' % num_table)
+
+
+if __name__ == '__main__':
+    conn = sqlite3.connect(database)
+    show_options()
+    user_input = input(input_prompt)
+    while in
