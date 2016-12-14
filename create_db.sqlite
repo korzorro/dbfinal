@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS role_permission;
 DROP TABLE IF EXISTS permission;
+DROP VIEW IF EXISTS role_users_concat;
+DROP VIEW IF EXISTS role_permissions_concat;
+
 
 --create new tables
 CREATE TABLE suggestion(
@@ -94,6 +97,21 @@ CREATE TABLE role_permission(
 );
 
 CREATE INDEX username_index ON user(username);
+
+CREATE VIEW role_users_concat AS
+SELECT role.id as id, role.name as name, GROUP_CONCAT(username, ', ') as users
+FROM role
+  JOIN user_role ON role.id=user_role.role_id
+  JOIN user ON user.id=user_id
+GROUP BY role.id;
+
+CREATE VIEW role_permissions_concat AS
+SELECT role.id as id, role.name as name, GROUP_CONCAT(permission.name, ', ') as permissions
+FROM role
+  JOIN role_permission ON role.id=role_permission.role_id
+  JOIN permission ON  permission.id=permission_id
+GROUP BY role.id;
+
 
 -- populate db
 -- suggestion

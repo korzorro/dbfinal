@@ -15,63 +15,87 @@ def show_options():
 
 
 def print_records(cursor):
+    print('-'*80)
     for record in cursor:
         for i, value in enumerate(record):
             print('%s: %s' % (cursor.description[i][0], value))
         print('-'*80)
-
+        
 
 def show_suggestions(conn):
     cursor = conn.execute(
-        'SELECT text, author, email, phone, timestamp, is_public, ' +
-        'should_contact FROM suggestion')
+        '''
+        SELECT text, author, email, phone, timestamp, is_public, should_contact
+        FROM suggestion
+        '''
+    )
     print_records(cursor)
 
 
 def show_responses(conn):
     cursor = conn.execute(
-        'SELECT suggestion.text as suggestion_text, response.text as ' +
-        'response_text, username, full_name, response.timestamp FROM ' +
-        'response JOIN user ON user_id=user.id JOIN suggestion ON ' +
-        'suggestion_id=suggestion.id')
+        '''
+        SELECT suggestion.text as suggestion_text, response.text as
+        response_text, username, full_name, response.timestamp
+        FROM response
+        JOIN user ON user_id=user.id
+        JOIN suggestion ON suggestion_id=suggestion.id
+        '''
+    )
     print_records(cursor)
 
 
 def show_comments(conn):
     cursor = conn.execute(
-        'SELECT suggestion.text as suggestion_text, response.text as ' +
-        'response_text, comment.text as comment_text, username as ' +
-        'commenter, full_name, response.timestamp FROM comment JOIN user ON ' +
-        'comment.user_id=user.id JOIN response ON response_id=response.id ' +
-        'JOIN suggestion ON suggestion_id=suggestion.id')
+        '''
+        SELECT suggestion.text as suggestion_text, response.text as
+        response_text, comment.text as comment_text, username as commenter,
+        full_name, response.timestamp
+        FROM comment
+        JOIN user ON comment.user_id=user.id
+        JOIN response ON response_id=response.id
+        JOIN suggestion ON suggestion_id=suggestion.id
+        '''
+    )
     print_records(cursor)
 
 
 def show_users(conn):
     cursor = conn.execute(
-        'SELECT username, full_name, email, password, is_active, ' +
-        'GROUP_CONCAT(role.name, \', \') as roles FROM user JOIN user_role ' +
-        'ON user.id=user_id JOIN role ON role.id=role_id group by user.id')
+        '''
+        SELECT username, full_name, email, password, is_active,
+        GROUP_CONCAT(role.name, \', \') as roles
+        FROM user
+        JOIN user_role ON user.id=user_id
+        JOIN role ON role.id=role_id
+        GROUP BY user.id
+        '''
+    )
     print_records(cursor)
 
 
 def show_roles(conn):
     cursor = conn.execute(
         '''
-        SELECT role.name, users, GROUP_CONCAT(permission.name, \', \'),
-        (SELECT role.name, GROUP_CONCAT(username, \', \') as users FROM role
-        JOIN user_role ON role.id=role_id JOIN user ON user.id=user_id group by
-        role.id) 
-        ''')
+        SELECT role_users_concat.name, users, permissions FROM
+        role_users_concat JOIN role_permissions_concat ON
+        role_users_concat.id=role_permissions_concat.id
+        '''
+    )
     print_records(cursor)
 
 
-def show_permissions():
+def show_permissions(conn):
     cursor = conn.execute(
-        'SELECT name, endpoint' +
-        'GROUP_CONCAT(user.username, \', \') as users FROM role JOIN '
-        'user_role ON role.id=role_id JOIN user ON user.id=user_id group by ' +
-        'role.id')
+        '''
+        SELECT permission.name, endpoint, GROUP_CONCAT(role.name, \', \')
+        as roles
+        FROM permission
+        JOIN role_permission ON permission_id=permission.id
+        JOIN role ON role.id=role_id
+        GROUP BY permission.id
+        '''
+        )
     print_records(cursor)
 
 

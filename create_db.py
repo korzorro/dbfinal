@@ -1,6 +1,6 @@
 import sqlite3
 
-database = 'suggestion_box'
+database = 'suggestion_box.db'
 sqlite_script = 'create_db.sqlite'
 
 
@@ -9,4 +9,5 @@ if __name__ == '__main__':
         with open(sqlite_script) as sqlite_file:
             for command in sqlite_file.read().split(';'):
                 conn.execute(command)
-        conn.commit()
+            conn.commit()
+        
