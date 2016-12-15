@@ -56,6 +56,9 @@ def show_users(conn):
     )
 
 
+# This function and show_permissions both make use of views in order to
+# simplify the slect statement. This may not be efficient but it aided in the
+# logic.
 def show_roles(conn):
     return conn.execute(
         '''
@@ -87,6 +90,7 @@ functions = OrderedDict([
     ('role', show_roles),
     ('permission', show_permissions)
 ])
+
 
 if __name__ == '__main__':
     generate_ui(database, functions, input_prompt, again_prompt)

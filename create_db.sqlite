@@ -37,7 +37,7 @@ CREATE TABLE permission(
 
 CREATE TABLE user(
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-  username VARCHAR(128) NOT NULL,
+  username VARCHAR(128) NOT NULL UNIQUE,
   full_name VARCHAR(128) NOT NULL,
   email VARCHAR(128) NOT NULL,
   password VARCHAR(128) NOT NULL,
@@ -253,4 +253,3 @@ INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
 	'2016-8-21 14:20:00.000');
 INSERT INTO comment(id, user_id, response_id, text, timestamp) VALUES
     (NULL, 2, 3, 'Our WiFi usage policies are on our website.', '2016-8-21 14:23:00.000');
-
