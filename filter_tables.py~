@@ -1,0 +1,8 @@
+import sqlite3
+
+def filter_active_users(conn, is_active):
+    
+
+
+if __name__ == '__main__':
+    

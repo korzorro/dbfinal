@@ -1,0 +1,43 @@
+import sqlite3
+
+
+def generate_ui(database, functions, input_prompt, again_prompt):
+    conn = sqlite3.connect(database)
+    again = 'y'
+    while again == 'y':
+        show_options(functions.keys())
+        user_input = input(input_prompt)
+        while user_input != 'q':
+            if is_integer(user_input) and int(user_input) in range(
+                    1, len(functions)+1):
+                cursor = list(functions.values())[int(user_input)-1](conn)
+                print_records(cursor)
+                break
+            else:
+                print('Invalid selection: Enter a number from 1 to %i' %
+                      len(functions))
+                user_input = input()
+        if user_input == 'q':
+            break
+        again = input(again_prompt)
+
+
+def show_options(options):
+    for number, option in enumerate(options):
+        print('%i. %s' % (number+1, option))
+
+
+def print_records(cursor):
+    print('-'*80)
+    for record in cursor:
+        for i, value in enumerate(record):
+            print('%s: %s' % (cursor.description[i][0], value))
+        print('-'*80)
+
+
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False

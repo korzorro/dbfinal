@@ -1,0 +1,15 @@
+from helper import generate_ui
+from getpas import getpass
+
+database = 'suggestion_box.db'
+input_prompt = 'Select a function (enter a number or enter "q" to exit).\n'
+again_prompt = 'Would you like to select another function (Enter "y" to ' +\
+               'start again)?\n'
+
+def login(conn):
+    username = input('Username: ')
+    password = getpass('Password: ')
+
+
+if __name__ == '__main__':
+    generate_ui
